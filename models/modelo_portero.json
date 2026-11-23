@@ -1,0 +1,12 @@
+{
+  "labels": [
+    "radiografia",
+    "foto_cordon",
+    "otra"
+  ],
+  "img_size": 224,
+  "entrada": "RGB estirada a cuadrado, valores entre 0 y 1",
+  "salida": "probabilidades por clase",
+  "umbral_no_seguro": 0.6,
+  "onnx_verificado": true
+}

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revisión remota de soldaduras</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%230b0f14%22/%3E%3Crect x=%226%22 y=%2213%22 width=%2220%22 height=%226%22 rx=%223%22 fill=%22%2338bdf8%22/%3E%3Crect x=%2219%22 y=%2210%22 width=%228%22 height=%2212%22 fill=%22none%22 stroke=%22%23dc2626%22 stroke-width=%222%22/%3E%3C/svg%3E" />
+    <script type="module" crossorigin src="./assets/index-BW65mH03.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-MNkQ3JJS.css">
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <strong>Revisión remota de soldaduras</strong>
+        <span>Detección automatizada para la revisión del inspector</span>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Tipo de imagen">
+        <button role="tab" id="tab-radiografias" data-modulo="radiografias" aria-selected="true">Radiografía</button>
+        <button role="tab" id="tab-cordones" data-modulo="cordones" aria-selected="false">Foto del cordón</button>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <section class="stage" aria-label="Visor">
+        <div class="toolbar" role="toolbar" aria-label="Herramientas del visor">
+          <button id="zoom-out" title="Alejar (−)" aria-label="Alejar">−</button>
+          <span id="zoom-level" class="zoom">100 %</span>
+          <button id="zoom-in" title="Acercar (+)" aria-label="Acercar">+</button>
+          <button id="fit" title="Ver entera (0)">Ajustar</button>
+          <span class="sep"></span>
+          <label>Brillo <input id="brightness" type="range" min="0.3" max="2.5" step="0.05" value="1" /></label>
+          <label>Contraste <input id="contrast" type="range" min="0.3" max="3" step="0.05" value="1" /></label>
+          <label class="check"><input id="invert" type="checkbox" /> Invertir</label>
+          <label class="check"><input id="show-good" type="checkbox" checked /> Zonas sanas</label>
+          <button id="reset-view" title="Restablecer brillo y contraste">Restablecer</button>
+        </div>
+        <div class="canvas-wrap" id="drop">
+          <canvas id="viewer" tabindex="0" aria-label="Imagen analizada"></canvas>
+          <div class="empty" id="empty">
+            <p id="drop-title">Arrastrá una radiografía acá</p>
+            <p class="hint" id="drop-hint">o elegila desde tu compu. La imagen no sale de tu navegador.</p>
+            <label class="primary">Elegir imagen <input id="file" type="file" accept="image/*" hidden /></label>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel" aria-live="polite">
+        <div id="status" class="status" hidden></div>
+        <div id="gate" class="gate" hidden></div>
+        <h2 id="verdict">Subí una imagen para empezar</h2>
+        <p id="module-help" class="help"></p>
+        <div class="counters">
+          <div><span id="n-def">–</span><small>Posibles defectos</small></div>
+          <div><span id="n-rev">–</span><small>Para revisar</small></div>
+          <div><span id="n-ok">–</span><small>Zonas sanas</small></div>
+        </div>
+        <ol id="findings" class="findings"></ol>
+        <p class="legend">
+          <span class="dot defecto"></span>Rojo: el modelo está seguro ·
+          <span class="dot revisar"></span>Amarillo punteado: duda, conviene mirarlo ·
+          <span class="dot bien"></span>Verde: sano
+        </p>
+        <p class="disclaimer">La IA sugiere; no aprueba ni rechaza. Decide el inspector.</p>
+        <label class="secondary">Otra imagen <input id="file2" type="file" accept="image/*" hidden /></label>
+        <details class="about">
+          <summary>Acerca de esta demo</summary>
+          <p>Proyecto de portfolio de Esteban Mendez (Data Analyst y QA). Los modelos corren en tu navegador: la imagen no se sube a ningún servidor.</p>
+          <p>Es una demo, no un sistema certificado. En prueba, el modelo de radiografías marcó el 95,6 % de las placas con defecto y el de fotos el 97,7 %; ambos dan falsas alarmas que el inspector debe descartar.</p>
+          <p><strong>Datos de entrenamiento:</strong> radiografías "weld" (kunkun) y "weld data" (Vayun Goel), y fotos "Welding_Defects", en Roboflow Universe, bajo CC BY 4.0; fotos "welding defects detection" (dominio público). Portero: además, Imagenette (Apache 2.0) y "Chest X-Ray Images (Pneumonia)" de Kermany et al. (CC BY 4.0).</p>
+          <p><strong>Modelos base:</strong> RT-DETR R18 (Apache 2.0) y MobileNetV3-Small (BSD), ajustados para este proyecto.</p>
+        </details>
+      </aside>
+    </main>
+  </body>
+</html>

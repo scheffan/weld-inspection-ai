@@ -1,0 +1,16 @@
+{
+  "labels": [
+    "Good Weld",
+    "Bad Weld",
+    "Defect"
+  ],
+  "umbral": 0.15,
+  "img_size": 640,
+  "modelo": "PekingU/rtdetr_r18vd_coco_o365",
+  "version": "v2-ventanas",
+  "ventanas": {
+    "overlap": 0.25,
+    "min_ratio": 1.5
+  },
+  "onnx_verificado": true
+}

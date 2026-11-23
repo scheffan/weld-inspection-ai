@@ -1,0 +1,19 @@
+{
+  "labels": [
+    "porosidad",
+    "fisura",
+    "inclusion de escoria",
+    "falta de penetracion",
+    "falta de fusion",
+    "otro defecto"
+  ],
+  "umbral": 0.5,
+  "img_size": 640,
+  "modelo": "PekingU/rtdetr_r18vd_coco_o365",
+  "version": "v2-ventanas",
+  "ventanas": {
+    "overlap": 0.25,
+    "min_ratio": 1.5
+  },
+  "onnx_verificado": true
+}
