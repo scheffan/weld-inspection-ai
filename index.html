@@ -4,36 +4,208 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Revisión remota de soldaduras</title>
+    <meta name="description" content="Demo: una IA marca posibles defectos en radiografías y fotos de soldaduras de ductos; el inspector revisa y decide a distancia." />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%230b0f14%22/%3E%3Crect x=%226%22 y=%2213%22 width=%2220%22 height=%226%22 rx=%223%22 fill=%22%2338bdf8%22/%3E%3Crect x=%2219%22 y=%2210%22 width=%228%22 height=%2212%22 fill=%22none%22 stroke=%22%23dc2626%22 stroke-width=%222%22/%3E%3C/svg%3E" />
-    <script type="module" crossorigin src="./assets/index-BW65mH03.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-MNkQ3JJS.css">
+    <script type="module" crossorigin src="./assets/index-BL6dLXWS.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DOv_KL-p.css">
   </head>
   <body>
     <header class="top">
-      <div class="brand">
+      <a class="brand" href="#/bandeja">
         <strong>Revisión remota de soldaduras</strong>
-        <span>Detección automatizada para la revisión del inspector</span>
-      </div>
-      <nav class="tabs" role="tablist" aria-label="Tipo de imagen">
-        <button role="tab" id="tab-radiografias" data-modulo="radiografias" aria-selected="true">Radiografía</button>
-        <button role="tab" id="tab-cordones" data-modulo="cordones" aria-selected="false">Foto del cordón</button>
+        <span>La IA prioriza · el inspector decide</span>
+      </a>
+      <nav class="nav" aria-label="Secciones">
+        <a href="#/bandeja" data-nav="bandeja">Bandeja</a>
+        <a href="#/cargar" data-nav="cargar">Cargar soldadura</a>
+        <a href="#/analizar" data-nav="analizar">Analizar rápido</a>
       </nav>
+      <button id="btn-ajustes" class="ghost" title="Inspector y norma">
+        <span id="ajustes-resumen">Inspector: sin nombre</span>
+      </button>
     </header>
+    <div id="global-status" class="global-status" hidden role="status"></div>
 
-    <main class="layout">
-      <section class="stage" aria-label="Visor">
-        <div class="toolbar" role="toolbar" aria-label="Herramientas del visor">
-          <button id="zoom-out" title="Alejar (−)" aria-label="Alejar">−</button>
-          <span id="zoom-level" class="zoom">100 %</span>
-          <button id="zoom-in" title="Acercar (+)" aria-label="Acercar">+</button>
-          <button id="fit" title="Ver entera (0)">Ajustar</button>
-          <span class="sep"></span>
-          <label>Brillo <input id="brightness" type="range" min="0.3" max="2.5" step="0.05" value="1" /></label>
-          <label>Contraste <input id="contrast" type="range" min="0.3" max="3" step="0.05" value="1" /></label>
-          <label class="check"><input id="invert" type="checkbox" /> Invertir</label>
-          <label class="check"><input id="show-good" type="checkbox" checked /> Zonas sanas</label>
-          <button id="reset-view" title="Restablecer brillo y contraste">Restablecer</button>
+    <!-- ============================================================ BANDEJA -->
+    <main class="view" data-view="bandeja" hidden>
+      <div class="page">
+        <div class="page-head">
+          <div>
+            <h1>Bandeja</h1>
+            <p class="help">Juntas ordenadas por riesgo: arriba las que tienen posibles defectos, al final las ya decididas.</p>
+          </div>
+          <a class="primary" href="#/cargar">Cargar soldadura</a>
         </div>
+        <div class="filters" id="filtros">
+          <label>Obra <select id="f-obra"></select></label>
+          <label>Tramo <select id="f-tramo"></select></label>
+          <label>Estado
+            <select id="f-estado">
+              <option value="">Todos</option>
+              <option value="para_revisar">Para revisar</option>
+              <option value="lista">Lista para decidir</option>
+              <option value="sin_analizar">Sin analizar</option>
+              <option value="decidida">Decidida</option>
+            </select>
+          </label>
+          <label class="grow">Buscar <input id="f-buscar" type="search" placeholder="N.º de junta, soldador, progresiva…" /></label>
+        </div>
+        <div class="chips" id="resumen-bandeja"></div>
+        <div class="table-wrap">
+          <table class="bandeja" id="tabla-bandeja">
+            <thead>
+              <tr>
+                <th>Riesgo</th><th>Junta</th><th>Obra · Tramo</th><th>Unión</th><th>Imágenes</th><th>Qué vio la IA</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="bandeja-vacia" hidden>
+          <h2>Todavía no hay juntas</h2>
+          <p>Cargá una soldadura con su radiografía o foto, o probá con una obra de ejemplo.</p>
+          <div class="row">
+            <a class="primary" href="#/cargar">Cargar soldadura</a>
+            <button class="secondary" id="btn-ejemplo">Cargar ejemplo</button>
+          </div>
+        </div>
+        <div class="page-foot">
+          <span>Los datos quedan guardados en este navegador.</span>
+          <button class="link" id="btn-exportar">Exportar copia</button>
+          <label class="link">Importar copia <input id="input-importar" type="file" accept="application/json,.json" hidden /></label>
+          <button class="link" id="btn-ejemplo-2">Cargar ejemplo</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ============================================================ CARGAR -->
+    <main class="view" data-view="cargar" hidden>
+      <form class="page narrow" id="form-junta" novalidate>
+        <div class="page-head">
+          <div>
+            <h1 id="cargar-titulo">Cargar soldadura</h1>
+            <p class="help">Datos según el mapa de soldaduras. Obra, tramo, N.º de junta y al menos una imagen son obligatorios.</p>
+          </div>
+        </div>
+        <fieldset>
+          <legend>Ubicación</legend>
+          <div class="grid">
+            <label>Obra * <input name="obra" list="dl-obras" autocomplete="off" placeholder="Gasoducto Norte" /><small class="err" data-err="obra"></small></label>
+            <label>Tramo * <input name="tramo" list="dl-tramos" autocomplete="off" placeholder="Tramo 3 · Km 12–18" /><small class="err" data-err="tramo"></small></label>
+            <label>N.º de junta * <input name="numero" autocomplete="off" placeholder="J-0142" /><small class="err" data-err="numero"></small></label>
+            <label>Progresiva <input name="progresiva" autocomplete="off" placeholder="12+340" /></label>
+          </div>
+          <datalist id="dl-obras"></datalist>
+          <datalist id="dl-tramos"></datalist>
+        </fieldset>
+        <fieldset>
+          <legend>Junta</legend>
+          <div class="grid">
+            <label>Tipo de unión <select name="tipoUnion" id="sel-union"></select></label>
+            <label>Material <input name="material" placeholder="API 5L X70" /></label>
+            <label>Diámetro <input name="diametro" placeholder='24"' /></label>
+            <label>Espesor <input name="espesor" placeholder="12,7 mm" /></label>
+            <label>Proceso <input name="proceso" list="dl-procesos" placeholder="SMAW" /></label>
+            <label>Soldador <input name="soldador" placeholder="S-07" /></label>
+          </div>
+          <datalist id="dl-procesos"><option value="SMAW"></option><option value="GMAW"></option><option value="FCAW"></option><option value="GTAW"></option><option value="SAW"></option></datalist>
+        </fieldset>
+        <fieldset>
+          <legend>Imágenes</legend>
+          <div class="slots">
+            <div class="slot" data-slot="radiografia">
+              <div class="slot-head"><strong>Radiografía</strong><small>defectos internos</small></div>
+              <div class="slot-body">
+                <img alt="" hidden />
+                <p class="slot-empty">Arrastrá la radiografía o</p>
+                <label class="secondary small">Elegir <input type="file" accept="image/*" hidden /></label>
+              </div>
+              <div class="slot-note" hidden></div>
+              <button type="button" class="link slot-remove" hidden>Quitar</button>
+            </div>
+            <div class="slot" data-slot="foto">
+              <div class="slot-head"><strong>Foto del cordón</strong><small>superficie</small></div>
+              <div class="slot-body">
+                <img alt="" hidden />
+                <p class="slot-empty">Arrastrá la foto o</p>
+                <label class="secondary small">Elegir <input type="file" accept="image/*" hidden /></label>
+              </div>
+              <div class="slot-note" hidden></div>
+              <button type="button" class="link slot-remove" hidden>Quitar</button>
+            </div>
+          </div>
+          <small class="err" data-err="imagenes"></small>
+          <p class="help">Las imágenes no salen de tu navegador. Al guardar, la IA las analiza y la junta aparece en la bandeja.</p>
+        </fieldset>
+        <div class="form-actions">
+          <button type="submit" class="primary" data-then="revisar">Guardar</button>
+          <button type="submit" class="secondary" data-then="otra">Guardar y cargar otra</button>
+          <a class="link" href="#/bandeja">Cancelar</a>
+        </div>
+      </form>
+    </main>
+
+    <!-- ============================================================ REVISIÓN -->
+    <main class="view layout" data-view="junta" hidden>
+      <section class="stage" aria-label="Visor">
+        <div class="stage-head">
+          <nav class="tabs" role="tablist" aria-label="Vista" id="r-vistas">
+            <button role="tab" data-vista="radiografia">Radiografía</button>
+            <button role="tab" data-vista="foto">Foto</button>
+            <button role="tab" data-vista="lado">Lado a lado</button>
+          </nav>
+        </div>
+        <div class="toolbar" role="toolbar" aria-label="Herramientas del visor" data-toolbar="r-"></div>
+        <div class="viewers" id="r-viewers">
+          <div class="canvas-wrap" data-pane="radiografia">
+            <span class="pane-label">Radiografía</span>
+            <canvas id="r-canvas-radiografia" tabindex="0" aria-label="Radiografía"></canvas>
+            <div class="pane-msg" hidden></div>
+          </div>
+          <div class="canvas-wrap" data-pane="foto">
+            <span class="pane-label">Foto del cordón</span>
+            <canvas id="r-canvas-foto" tabindex="0" aria-label="Foto del cordón"></canvas>
+            <div class="pane-msg" hidden></div>
+          </div>
+        </div>
+      </section>
+      <aside class="panel" aria-live="polite">
+        <a class="link back" href="#/bandeja">← Bandeja</a>
+        <div>
+          <h2 id="r-titulo">Junta</h2>
+          <p class="help" id="r-sub"></p>
+        </div>
+        <dl class="datos" id="r-datos"></dl>
+        <div class="estado-box" id="r-estado"></div>
+        <section>
+          <h3>Hallazgos <small class="help" id="r-pend"></small></h3>
+          <p class="help small">Aceptá lo que es defecto, descartá las falsas alarmas o cambiá el tipo si la IA se equivocó de nombre.</p>
+          <label class="check small"><input id="r-show-good" type="checkbox" checked /> Mostrar zonas sanas</label>
+          <ol id="r-hallazgos" class="findings review"></ol>
+        </section>
+        <section class="decision" id="r-decision"></section>
+        <section>
+          <h3>Historial</h3>
+          <ol id="r-historial" class="historial"></ol>
+        </section>
+        <div class="row">
+          <button class="secondary" id="r-informe">Informe (PDF)</button>
+          <button class="link danger" id="r-borrar">Borrar junta</button>
+        </div>
+      </aside>
+    </main>
+
+    <!-- ============================================================ ANALIZAR RÁPIDO -->
+    <main class="view layout" data-view="analizar" hidden>
+      <section class="stage" aria-label="Visor">
+        <div class="stage-head">
+          <nav class="tabs" role="tablist" aria-label="Tipo de imagen">
+            <button role="tab" id="tab-radiografias" data-modulo="radiografias" aria-selected="true">Radiografía</button>
+            <button role="tab" id="tab-cordones" data-modulo="cordones" aria-selected="false">Foto del cordón</button>
+          </nav>
+          <span class="help">Probá una imagen suelta, sin cargar la junta. No se guarda nada.</span>
+        </div>
+        <div class="toolbar" role="toolbar" aria-label="Herramientas del visor" data-toolbar=""></div>
         <div class="canvas-wrap" id="drop">
           <canvas id="viewer" tabindex="0" aria-label="Imagen analizada"></canvas>
           <div class="empty" id="empty">
@@ -66,10 +238,28 @@
           <summary>Acerca de esta demo</summary>
           <p>Proyecto de portfolio de Esteban Mendez (Data Analyst y QA). Los modelos corren en tu navegador: la imagen no se sube a ningún servidor.</p>
           <p>Es una demo, no un sistema certificado. En prueba, el modelo de radiografías marcó el 95,6 % de las placas con defecto y el de fotos el 97,7 %; ambos dan falsas alarmas que el inspector debe descartar.</p>
-          <p><strong>Datos de entrenamiento:</strong> radiografías "weld" (kunkun) y "weld data" (Vayun Goel), y fotos "Welding_Defects", en Roboflow Universe, bajo CC BY 4.0; fotos "welding defects detection" (dominio público). Portero: además, Imagenette (Apache 2.0) y "Chest X-Ray Images (Pneumonia)" de Kermany et al. (CC BY 4.0).</p>
+          <p><strong>Datos de entrenamiento:</strong> radiografías "weld" (kunkun) y "weld data" (Vayun Goel), y fotos "Welding_Defects", en Roboflow Universe, bajo CC BY 4.0; fotos "welding defects detection" (dominio público). Portero: además, Imagenette (Apache 2.0) y "Chest X-Ray Images (Pneumonia)" de Kermany et al. (CC BY 4.0). Las imágenes de la obra de ejemplo salen de esos mismos datasets.</p>
           <p><strong>Modelos base:</strong> RT-DETR R18 (Apache 2.0) y MobileNetV3-Small (BSD), ajustados para este proyecto.</p>
         </details>
       </aside>
     </main>
+
+    <!-- ============================================================ AJUSTES -->
+    <dialog id="dlg-ajustes">
+      <form method="dialog" class="dialog">
+        <h2>Inspector y norma</h2>
+        <p class="help">Quedan registrados en cada revisión y decisión.</p>
+        <label>Nombre del inspector <input id="aj-inspector" autocomplete="name" placeholder="Nombre y apellido" /></label>
+        <label>Norma de aceptación <select id="aj-norma"></select></label>
+        <div class="row">
+          <button value="ok" class="primary">Guardar</button>
+          <button value="cancel" class="secondary" formnovalidate>Cancelar</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- ============================================================ INFORME (solo impresión) -->
+    <article id="informe" class="informe" aria-hidden="true"></article>
+
   </body>
 </html>
