@@ -22,7 +22,7 @@ Todo corre en tu navegador: las imágenes y los datos no se suben a ningún serv
 
 1. **Portero.** Un clasificador chico revisa qué imagen subiste: radiografía de soldadura, foto de cordón u otra cosa. Si no coincide con la pestaña elegida, avisa antes de analizar.
 2. **Detector.** Cada tipo de imagen tiene su propio modelo (RT-DETR). Las placas alargadas se analizan por partes superpuestas, para no perder defectos chicos.
-3. **Tres niveles.** Rojo: el modelo está seguro. Amarillo punteado: duda, conviene mirarlo. Verde: zona sana.
+3. **Tres niveles.** Rojo: el modelo suele acertar (calibrado para que al menos 8 de cada 10 rojos sean defectos reales: 82,7 % en radiografías y 80,4 % en fotos, medido en prueba). Amarillo punteado: duda, conviene mirarlo. Verde: zona sana.
 4. **Visor.** Zoom, arrastre, brillo, contraste e invertir, como en un negatoscopio.
 
 ![El portero avisa que la imagen no corresponde](capturas/web-04-portero-avisa.png)

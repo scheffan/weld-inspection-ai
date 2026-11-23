@@ -12,5 +12,6 @@
     "overlap": 0.25,
     "min_ratio": 1.5
   },
-  "onnx_verificado": true
+  "onnx_verificado": true,
+  "umbral_alto": 0.8169
 }
